@@ -1,0 +1,67 @@
+Metadata-Version: 2.4
+Name: vacsim
+Version: 0.1.0
+Summary: Battery-Level-Aware Task Offloading Simulator for Intelligent Vacuum in Edge-Cloud Collaboration
+Author: Your Name
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: simpy
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pyyaml
+Requires-Dist: pydantic>=2
+Requires-Dist: typer[all]
+Requires-Dist: matplotlib
+Requires-Dist: rich
+Requires-Dist: pytest
+Requires-Dist: pytest-cov
+Dynamic: license-file
+
+# VacSim
+
+VacSim is a Battery-Level-Aware Task Offloading Simulator designed for Intelligent Vacuum cleaners operating in Edge-Cloud Collaboration environments. It provides a framework for modeling battery consumption, task generation, and offloading policies to optimize battery life and task performance.
+
+## Quick Start
+
+```bash
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install the package in development mode
+pip install -e .
+
+# Run a minimal example
+vacsim run --config configs/experiments/basic_sim.yaml
+```
+
+## Project Structure
+
+```
+vacsim/
+├── .gitignore
+├── LICENSE
+├── README.md
+├── pyproject.toml
+├── src/
+│   └── vacsim/
+│       ├── __init__.py
+│       ├── config/
+│       ├── core/
+│       ├── models/
+│       ├── policies/
+│       ├── sim/
+│       ├── metrics/
+│       └── cli/
+├── tests/
+├── configs/
+│   └── experiments/
+├── scripts/
+└── data/
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

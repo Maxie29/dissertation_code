@@ -1,0 +1,10 @@
+simpy
+numpy
+pandas
+pyyaml
+pydantic>=2
+typer[all]
+matplotlib
+rich
+pytest
+pytest-cov
