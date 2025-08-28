@@ -1,0 +1,40 @@
+simulation:
+  seeds: 123
+  duration_s: 1200
+  time_step_s: 1.0
+
+robot:
+  battery_capacity_Wh: 50.0
+  idle_power_W: 8.0
+  move_power_W: 20.0
+  compute_efficiency_J_per_cycle: 1e-9
+  init_soc: 0.7
+
+nodes:
+  - {name: "robot", kind: "robot", cpu_cycles_per_sec: 8e9, base_power_W: 10.0, max_power_W: 30.0}
+  - {name: "edge",  kind: "edge",  cpu_cycles_per_sec: 3.2e10, base_power_W: 80.0, max_power_W: 200.0}
+  - {name: "cloud", kind: "cloud", cpu_cycles_per_sec: 1.0e11, base_power_W: 200.0, max_power_W: 400.0}
+
+network:
+  uplink_Mbps: 20.0
+  downlink_Mbps: 50.0
+  rtt_ms: 25.0
+  tx_energy_nJ_per_bit: 0.5
+  rx_energy_nJ_per_bit: 0.3
+
+task:
+  mean_arrival_rate_hz: 0.5
+  size_kbits_dist:   {type: "lognormal", params: {mean: 50.0, sigma: 0.6}}
+  cycles_dist:       {type: "lognormal", params: {mean: 5.0e9, sigma: 0.7}}
+  deadline_s_dist:   {type: "normal_clipped", params: {mean: 2.5, std: 0.8, min: 0.5}}
+
+policy:
+  name: "BatteryLevelAwarePolicy"
+  params:
+    low_soc_th: 0.2
+    high_soc_th: 0.6
+    deadline_slack_s: 0.2
+
+metrics:
+  flush_interval_s: 5.0
+  out_dir: "data/runs"
