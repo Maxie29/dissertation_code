@@ -141,7 +141,26 @@ class TaskConfig(BaseModel):
     deadline_s_dist: DistributionConfig = Field(
         description="Distribution of task deadlines in seconds"
     )
-
+    type_mix: Dict[str, float] | None = Field(
+        default=None,
+        description="Distribution of different task types by proportion"
+    )
+    
+    class Config:
+        extra = "ignore"
+    
+    @field_validator('type_mix')
+    def validate_type_mix(cls, v):
+        if v is not None:
+            # Check non-negative values
+            if any(prop < 0 for prop in v.values()):
+                raise ValueError("All proportions in type_mix must be non-negative")
+                
+            # Check sum is approximately 1
+            total = sum(v.values())
+            if abs(total - 1.0) > 1e-6:
+                raise ValueError(f"Sum of type_mix proportions must be 1.0, got {total}")
+        return v
 
 class PolicyConfig(BaseModel):
     """

@@ -27,13 +27,21 @@ task:
   size_kbits_dist:   {type: "lognormal", params: {mean: 50.0, sigma: 0.6}}
   cycles_dist:       {type: "lognormal", params: {mean: 5.0e9, sigma: 0.7}}
   deadline_s_dist:   {type: "normal_clipped", params: {mean: 2.5, std: 0.8, min: 0.5}}
+  type_mix:
+    navigation: 0.05
+    obstacle_avoidance: 0.05
+    slam: 0.10
+    generic: 0.80
 
 policy:
   name: "BatteryLevelAwarePolicy"
   params:
-    low_soc_th: 0.2
-    high_soc_th: 0.6
-    deadline_slack_s: 0.2
+    soc_cloud_threshold: 0.30
+    force_local_types: ["navigation","obstacle_avoidance","slam"]
+    edge_when_heavy:
+      min_cycles: 8.0e9
+      min_upload_kbits: 200
+    debug: true
 
 metrics:
   flush_interval_s: 5.0
