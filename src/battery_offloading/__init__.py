@@ -36,7 +36,7 @@ from .energy import (
     estimate_comm_time,
     estimate_robot_energy
 )
-from .sim import ResourceStation, Network
+from .sim import ResourceStation, Network, Dispatcher, Runner, Metrics
 from .policy import BATT_THRESH, is_special, decide_site
 
 __all__ = [
@@ -54,6 +54,9 @@ __all__ = [
     "estimate_robot_energy",
     "ResourceStation",
     "Network",
+    "Dispatcher",
+    "Runner", 
+    "Metrics",
     "BATT_THRESH",
     "is_special", 
     "decide_site",
