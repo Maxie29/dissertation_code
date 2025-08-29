@@ -11,6 +11,7 @@ from .network import Network
 from .dispatcher import Dispatcher
 from .runner import Runner
 from .metrics import Metrics
+from .sweep import SweepConfig, SweepRunner, is_sweep_config
 
 __all__ = [
     "ResourceStation",
@@ -18,4 +19,7 @@ __all__ = [
     "Dispatcher",
     "Runner",
     "Metrics",
+    "SweepConfig",
+    "SweepRunner", 
+    "is_sweep_config",
 ]

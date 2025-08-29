@@ -1,0 +1,82 @@
+# Edge Latency Sweep Configuration
+# This configuration sweeps edge network latency parameters to study
+# the impact of edge communication delays on offloading decisions
+
+# Sweep configuration metadata
+sweep:
+  name: "edge_latency_impact_study"
+  description: "Study impact of edge network latency on task offloading performance"
+  variable: "edge_latency"
+  
+# Base configuration (same as baseline)
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 2500.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 1000000.0
+  power_consumption_mw: 2500.0
+
+edge_service:
+  processing_rate_ops_per_sec: 5000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 10000000.0
+  power_consumption_mw: 0.0
+
+# Fixed cloud network (baseline)
+cloud_network:
+  latency_ms: 100.0
+  bandwidth_mbps: 50.0
+  transmission_power_mw: 800.0
+
+# Edge network latency sweep parameters
+sweep_parameters:
+  edge_network:
+    - # Low latency scenario (5G/WiFi 6 + edge server)
+      latency_ms: 10.0
+      bandwidth_mbps: 100.0
+      transmission_power_mw: 800.0
+      label: "edge_10ms"
+      
+    - # Medium latency scenario (WiFi 5) - baseline
+      latency_ms: 20.0
+      bandwidth_mbps: 100.0
+      transmission_power_mw: 800.0
+      label: "edge_20ms"
+      
+    - # High latency scenario (4G)
+      latency_ms: 40.0
+      bandwidth_mbps: 100.0
+      transmission_power_mw: 800.0
+      label: "edge_40ms"
+      
+    - # Very high latency scenario (3G/poor connection)
+      latency_ms: 80.0
+      bandwidth_mbps: 100.0
+      transmission_power_mw: 800.0
+      label: "edge_80ms"
+
+# Fixed task generation (consistent workload across latency tests)
+task_generation:
+  arrival_rate_per_sec: 2.0
+  avg_operations: 5000000.0
+  avg_data_size_mb: 1.0
+  nav_ratio: 0.2
+  slam_ratio: 0.1
+  edge_affinity_ratio: 0.5
+
+simulation:
+  duration_sec: 300.0          # Shorter simulation for sweep studies
+  soc_threshold: 30.0
+  random_seed: 42
+  output_directory: "results/edge_latency_sweep"

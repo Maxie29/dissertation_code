@@ -20,6 +20,7 @@ from rich.text import Text
 from .config import Config
 from .task import TaskGenerator
 from .sim.runner import Runner
+from .sim.sweep import SweepConfig, SweepRunner, is_sweep_config
 
 
 app = typer.Typer(
@@ -117,6 +118,12 @@ def run(
             console.print(f"[red]Error: Configuration file '{config}' not found[/red]")
             raise typer.Exit(1)
         
+        # Check if this is a sweep configuration
+        if is_sweep_config(config):
+            # Handle sweep configuration
+            _run_sweep(config, num_tasks, seed, initial_soc, battery_capacity, results_dir, quiet)
+            return
+        
         try:
             sim_config = Config.from_yaml(config)
         except Exception as e:
@@ -199,6 +206,150 @@ def run(
     except Exception as e:
         console.print(f"\n[red]Error: {e}[/red]")
         raise typer.Exit(1)
+
+
+def _run_sweep(
+    config_path: str,
+    num_tasks: Optional[int],
+    seed: Optional[int],
+    initial_soc: Optional[float],
+    battery_capacity: Optional[float],
+    results_dir: str,
+    quiet: bool
+):
+    """Run parameter sweep using sweep configuration."""
+    try:
+        # Load sweep configuration
+        sweep_config = SweepConfig(config_path)
+        sweep_info = sweep_config.get_sweep_info()
+        
+        if not quiet:
+            console.print(Panel(
+                f"[bold magenta]Parameter Sweep: {sweep_info.get('name', 'Unnamed')}[/bold magenta]",
+                subtitle=f"Description: {sweep_info.get('description', 'No description')}"
+            ))
+        
+        # Set parameters with CLI overrides or defaults
+        task_count = num_tasks if num_tasks is not None else 200
+        seed_base = seed if seed is not None else 42
+        soc = initial_soc if initial_soc is not None else 80.0
+        capacity = battery_capacity if battery_capacity is not None else 100.0
+        
+        # Create and run sweep
+        if not quiet:
+            console.print(f"[yellow]Starting parameter sweep with {task_count} tasks per run...[/yellow]")
+        
+        sweep_runner = SweepRunner(sweep_config)
+        
+        # Run the sweep with progress indication
+        if not quiet:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console,
+                transient=False
+            ) as progress:
+                task = progress.add_task("Running parameter sweep...", total=None)
+                sweep_results = sweep_runner.run_sweep(
+                    num_tasks=task_count,
+                    initial_soc=soc,
+                    battery_capacity_wh=capacity,
+                    results_dir=results_dir,
+                    seed_base=seed_base
+                )
+                progress.update(task, description="Parameter sweep completed")
+        else:
+            sweep_results = sweep_runner.run_sweep(
+                num_tasks=task_count,
+                initial_soc=soc,
+                battery_capacity_wh=capacity,
+                results_dir=results_dir,
+                seed_base=seed_base
+            )
+        
+        # Display sweep summary
+        _display_sweep_results(sweep_results, sweep_info)
+        
+        # Check for any validation failures
+        failed_runs = [r for r in sweep_results if not r.get('validation', {}).get('all_rules_valid', True)]
+        if failed_runs and not quiet:
+            console.print(f"[red]Warning: {len(failed_runs)} runs had validation failures![/red]")
+        
+        console.print(f"\n[green]Parameter sweep completed successfully![/green]")
+        
+    except Exception as e:
+        console.print(f"[red]Error running parameter sweep: {e}[/red]")
+        raise typer.Exit(1)
+
+
+def _display_sweep_results(sweep_results: list, sweep_info: dict):
+    """Display parameter sweep results summary."""
+    console.print(f"\n[bold green]Parameter Sweep Results[/bold green]")
+    
+    # Summary statistics
+    successful_runs = [r for r in sweep_results if 'error' not in r]
+    failed_runs = [r for r in sweep_results if 'error' in r]
+    
+    summary_table = Table(title="Sweep Summary")
+    summary_table.add_column("Metric", style="cyan")
+    summary_table.add_column("Value", style="white", justify="right")
+    
+    summary_table.add_row("Total runs", f"{len(sweep_results)}")
+    summary_table.add_row("Successful runs", f"{len(successful_runs)}")
+    summary_table.add_row("Failed runs", f"{len(failed_runs)}")
+    
+    if successful_runs:
+        # Calculate aggregate metrics
+        all_latencies = [r['metrics']['latency_mean_ms'] for r in successful_runs]
+        all_energies = [r['metrics']['total_energy_wh'] for r in successful_runs]
+        all_soc_drops = [r['metrics']['soc_drop'] for r in successful_runs]
+        
+        summary_table.add_row("", "")
+        summary_table.add_row("Latency range", f"{min(all_latencies):.1f} - {max(all_latencies):.1f}ms")
+        summary_table.add_row("Energy range", f"{min(all_energies):.3f} - {max(all_energies):.3f}Wh")
+        summary_table.add_row("SoC drop range", f"{min(all_soc_drops):.2f} - {max(all_soc_drops):.2f}%")
+    
+    console.print(summary_table)
+    
+    # Detailed results table for successful runs
+    if successful_runs:
+        results_table = Table(title="Run Details", show_lines=True)
+        results_table.add_column("Run", style="cyan", justify="center")
+        results_table.add_column("Label", style="yellow")
+        results_table.add_column("Latency\n(ms)", justify="right")
+        results_table.add_column("Energy\n(Wh)", justify="right")
+        results_table.add_column("SoC Drop\n(%)", justify="right")
+        results_table.add_column("Local/Edge/Cloud\n(%)", justify="center")
+        results_table.add_column("Valid", justify="center")
+        
+        for result in successful_runs[:10]:  # Show first 10 runs
+            metrics = result['metrics']
+            validation = result.get('validation', {})
+            
+            distribution = f"{metrics['local_ratio']:.0%}/{metrics['edge_ratio']:.0%}/{metrics['cloud_ratio']:.0%}"
+            valid_status = "PASS" if validation.get('all_rules_valid', False) else "FAIL"
+            valid_style = "green" if validation.get('all_rules_valid', False) else "red"
+            
+            results_table.add_row(
+                str(result['run_id']),
+                result['parameter_label'][:20],  # Truncate long labels
+                f"{metrics['latency_mean_ms']:.1f}",
+                f"{metrics['total_energy_wh']:.3f}",
+                f"{metrics['soc_drop']:.2f}",
+                distribution,
+                f"[{valid_style}]{valid_status}[/{valid_style}]"
+            )
+        
+        console.print(results_table)
+        
+        if len(successful_runs) > 10:
+            console.print(f"[dim]... and {len(successful_runs) - 10} more runs[/dim]")
+    
+    # Show failed runs if any
+    if failed_runs:
+        console.print(f"\n[red]Failed Runs:[/red]")
+        for result in failed_runs:
+            console.print(f"  Run {result['run_id']} ({result['parameter_label']}): {result['error']}")
 
 
 def _display_configuration(config, num_tasks: int, seed: int, soc: float, capacity: float):

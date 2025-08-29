@@ -1,0 +1,165 @@
+# Workload Sweep Configuration  
+# This configuration sweeps task generation parameters to study
+# the impact of workload characteristics on offloading performance
+
+# Sweep configuration metadata
+sweep:
+  name: "workload_characteristics_study"
+  description: "Study impact of task arrival rate and mix on offloading performance"
+  variable: "workload_parameters"
+
+# Base configuration (same as baseline)
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 2500.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 1000000.0
+  power_consumption_mw: 2500.0
+
+edge_service:
+  processing_rate_ops_per_sec: 5000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 10000000.0
+  power_consumption_mw: 0.0
+
+# Fixed network parameters (baseline performance)
+edge_network:
+  bw_up_mbps: 100.0
+  bw_down_mbps: 100.0
+  rtt_ms: 20.0
+  jitter_ms: 2.0
+
+cloud_network:
+  bw_up_mbps: 50.0
+  bw_down_mbps: 50.0
+  rtt_ms: 100.0
+  jitter_ms: 10.0
+
+# Workload sweep parameters
+# Testing combinations of arrival rate, task mix, and edge affinity
+sweep_parameters:
+  task_generation:
+    - # Light workload, balanced mix
+      arrival_rate_per_sec: 1.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "light_balanced"
+      
+    - # Light workload, edge-heavy
+      arrival_rate_per_sec: 1.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.8
+      label: "light_edge_heavy"
+      
+    - # Light workload, local-heavy
+      arrival_rate_per_sec: 1.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.2
+      label: "light_local_heavy"
+      
+    - # Medium workload, balanced mix
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "medium_balanced"
+      
+    - # Medium workload, edge-heavy
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.8
+      label: "medium_edge_heavy"
+      
+    - # Medium workload, local-heavy
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.2
+      label: "medium_local_heavy"
+      
+    - # Heavy workload, balanced mix
+      arrival_rate_per_sec: 4.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "heavy_balanced"
+      
+    - # Heavy workload, edge-heavy
+      arrival_rate_per_sec: 4.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.8
+      label: "heavy_edge_heavy"
+      
+    - # Very heavy workload, balanced mix
+      arrival_rate_per_sec: 6.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "very_heavy_balanced"
+      
+    - # SLAM-intensive workload (robotics scenario)
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.1
+      slam_ratio: 0.3
+      edge_affinity_ratio: 0.5
+      label: "slam_intensive"
+      
+    - # NAV-intensive workload (autonomous driving)
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.4
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "nav_intensive"
+      
+    - # Generic-only workload (general computing)
+      arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0
+      nav_ratio: 0.0
+      slam_ratio: 0.0
+      edge_affinity_ratio: 0.5
+      label: "generic_only"
+
+simulation:
+  duration_sec: 300.0          # Shorter simulation for sweep studies
+  soc_threshold: 30.0
+  random_seed: 42
+  output_directory: "results/workload_sweep"
