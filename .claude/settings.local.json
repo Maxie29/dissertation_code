@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/test_task_generator.py -v)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

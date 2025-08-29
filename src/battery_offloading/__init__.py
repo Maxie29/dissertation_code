@@ -26,9 +26,12 @@ __author__ = "Battery Offloading Research Team"
 
 from .enums import TaskType, Site
 from .config import Config
+from .task import Task, TaskGenerator
 
 __all__ = [
     "TaskType",
     "Site", 
     "Config",
+    "Task",
+    "TaskGenerator",
 ]
