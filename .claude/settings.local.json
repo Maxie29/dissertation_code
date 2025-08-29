@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python -m pytest tests/test_task_generator.py -v)",
-      "Bash(python -m pytest tests/test_battery_energy.py -v)"
+      "Bash(python -m pytest tests/test_battery_energy.py -v)",
+      "Bash(python -m pytest tests/test_sim_components.py::TestNetwork::test_downlink_time_calculation -v)"
     ],
     "deny": [],
     "ask": []

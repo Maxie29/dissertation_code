@@ -36,6 +36,7 @@ from .energy import (
     estimate_comm_time,
     estimate_robot_energy
 )
+from .sim import ResourceStation, Network
 
 __all__ = [
     "TaskType",
@@ -50,4 +51,6 @@ __all__ = [
     "estimate_remote_compute_time",
     "estimate_comm_time",
     "estimate_robot_energy",
+    "ResourceStation",
+    "Network",
 ]
