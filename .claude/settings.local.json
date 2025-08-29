@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -m pytest tests/test_task_generator.py -v)"
+      "Bash(python -m pytest tests/test_task_generator.py -v)",
+      "Bash(python -m pytest tests/test_battery_energy.py -v)"
     ],
     "deny": [],
     "ask": []

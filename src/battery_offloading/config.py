@@ -24,9 +24,11 @@ class BatteryConfig(BaseModel):
     Battery specifications and initial state.
     
     Defines the physical characteristics of the mobile device battery
-    and its initial state at simulation start.
+    and its initial state at simulation start. Includes both capacity
+    in mAh (for compatibility) and Wh (for energy calculations).
     """
     capacity_mah: int = Field(gt=0, description="Battery capacity in mAh")
+    capacity_wh: float = Field(gt=0, description="Battery capacity in watt-hours (Wh)")
     initial_soc: float = Field(ge=0, le=100, description="Initial state of charge (%)")
     discharge_rate_ma: float = Field(gt=0, description="Base discharge rate in mA")
 
@@ -40,6 +42,19 @@ class ServiceConfig(BaseModel):
     """
     processing_rate_ops_per_sec: float = Field(gt=0, description="Operations per second")
     power_consumption_mw: float = Field(ge=0, description="Power consumption in mW")
+
+
+class PowerConfig(BaseModel):
+    """
+    Power consumption parameters for robot activities.
+    
+    Defines power consumption rates for different types of activities
+    including local computation and communication (TX/RX).
+    """
+    active_local_mw: float = Field(gt=0, description="Power consumption during local computation (mW)")
+    tx_mw: float = Field(gt=0, description="Power consumption during transmission (mW)")
+    rx_mw: float = Field(gt=0, description="Power consumption during reception (mW)")
+    idle_mw: float = Field(ge=0, default=100.0, description="Baseline idle power consumption (mW)")
 
 
 class NetworkConfig(BaseModel):
@@ -105,6 +120,7 @@ class Config(BaseModel):
     30.0
     """
     battery: BatteryConfig
+    power: PowerConfig
     local_service: ServiceConfig
     edge_service: ServiceConfig
     cloud_service: ServiceConfig

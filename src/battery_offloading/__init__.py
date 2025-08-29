@@ -27,6 +27,15 @@ __author__ = "Battery Offloading Research Team"
 from .enums import TaskType, Site
 from .config import Config
 from .task import Task, TaskGenerator
+from .battery import Battery
+from .energy import (
+    PowerParameters, 
+    ComputationTimes,
+    estimate_local_compute_time,
+    estimate_remote_compute_time, 
+    estimate_comm_time,
+    estimate_robot_energy
+)
 
 __all__ = [
     "TaskType",
@@ -34,4 +43,11 @@ __all__ = [
     "Config",
     "Task",
     "TaskGenerator",
+    "Battery",
+    "PowerParameters",
+    "ComputationTimes",
+    "estimate_local_compute_time",
+    "estimate_remote_compute_time",
+    "estimate_comm_time",
+    "estimate_robot_energy",
 ]

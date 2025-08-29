@@ -5,8 +5,16 @@
 # Battery specifications for a typical smartphone
 battery:
   capacity_mah: 5000           # 5000 mAh battery capacity
+  capacity_wh: 18.5            # 18.5 Wh (3.7V nominal * 5Ah)
   initial_soc: 100.0           # Start at 100% charge
   discharge_rate_ma: 200       # Base discharge rate in mA
+
+# Power consumption parameters for robot activities
+power:
+  active_local_mw: 2000.0      # 2W during local computation
+  tx_mw: 800.0                 # 800mW during transmission
+  rx_mw: 400.0                 # 400mW during reception
+  idle_mw: 100.0               # 100mW baseline idle power
 
 # Local device processing capabilities
 local_service:
