@@ -1,0 +1,52 @@
+# Baseline Configuration for Battery Offloading Simulation
+# This configuration represents a typical mobile device scenario with
+# realistic battery, processing, and network parameters
+
+# Battery specifications for a typical smartphone
+battery:
+  capacity_mah: 5000           # 5000 mAh battery capacity
+  initial_soc: 100.0           # Start at 100% charge
+  discharge_rate_ma: 200       # Base discharge rate in mA
+
+# Local device processing capabilities
+local_service:
+  processing_rate_ops_per_sec: 1000000.0    # 1M operations per second
+  power_consumption_mw: 2000.0              # 2W power consumption
+
+# Edge server processing capabilities
+edge_service:
+  processing_rate_ops_per_sec: 5000000.0    # 5M operations per second (5x faster)
+  power_consumption_mw: 0.0                 # No local power consumption for edge
+
+# Cloud server processing capabilities  
+cloud_service:
+  processing_rate_ops_per_sec: 10000000.0   # 10M operations per second (10x faster)
+  power_consumption_mw: 0.0                 # No local power consumption for cloud
+
+# Network parameters for edge communication
+edge_network:
+  latency_ms: 10.0             # 10ms latency to edge server
+  bandwidth_mbps: 100.0        # 100 Mbps bandwidth
+  transmission_power_mw: 500.0 # 500mW transmission power
+
+# Network parameters for cloud communication
+cloud_network:
+  latency_ms: 50.0             # 50ms latency to cloud
+  bandwidth_mbps: 50.0         # 50 Mbps bandwidth  
+  transmission_power_mw: 800.0 # 800mW transmission power
+
+# Task generation parameters
+task_generation:
+  arrival_rate_per_sec: 2.0    # 2 tasks per second
+  avg_operations: 5000000.0    # Average 5M operations per task
+  avg_data_size_mb: 1.0        # Average 1MB data per task
+  nav_ratio: 0.2               # 20% NAV tasks (always local)
+  slam_ratio: 0.1              # 10% SLAM tasks (always local)
+  edge_affinity_ratio: 0.6     # 60% of generic tasks prefer edge
+
+# Simulation control parameters
+simulation:
+  duration_sec: 300.0          # 5 minute simulation
+  soc_threshold: 30.0          # 30% SoC threshold for offloading decisions
+  random_seed: 42              # Fixed seed for reproducible results
+  output_directory: "results"  # Directory for output files
