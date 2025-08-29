@@ -37,6 +37,7 @@ from .energy import (
     estimate_robot_energy
 )
 from .sim import ResourceStation, Network
+from .policy import BATT_THRESH, is_special, decide_site
 
 __all__ = [
     "TaskType",
@@ -53,4 +54,7 @@ __all__ = [
     "estimate_robot_energy",
     "ResourceStation",
     "Network",
+    "BATT_THRESH",
+    "is_special", 
+    "decide_site",
 ]
