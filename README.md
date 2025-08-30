@@ -244,6 +244,125 @@ This framework enables research into:
 2. What is the optimal edge computing capacity for a given task arrival rate?
 3. How do NAV/SLAM task ratios impact system performance under battery constraints?
 
+## Experiment Reproduction
+
+### Quick Experiment Reproduction
+
+This project provides automated scripts for one-click execution of baseline experiments and parameter sweeps with automatic result packaging.
+
+#### Linux/macOS Users
+
+```bash
+# Run complete experiment suite
+chmod +x scripts/run_baseline.sh
+./scripts/run_baseline.sh
+```
+
+#### Windows Users
+
+```powershell
+# Run complete experiment suite
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser  # Only needed once
+.\scripts\run_baseline.ps1
+
+# If you encounter execution policy issues, use:
+powershell -ExecutionPolicy Bypass -File .\scripts\run_baseline.ps1
+```
+
+### Experiment Contents
+
+The automated scripts will execute sequentially:
+
+1. **Activate Virtual Environment** - Auto-detect and activate `venv`
+2. **Install Dependencies** - Update project dependencies to latest versions
+3. **Baseline Experiment** - Run benchmark experiment using `configs/baseline.yaml`
+4. **Edge Latency Sweep** - Parameter sweep using `configs/sweep_edge_latency.yaml`
+5. **Workload Sweep** - Parameter sweep using `configs/sweep_workload.yaml`
+6. **Result Packaging** - Automatically package all CSV data and PNG charts into ZIP file
+
+### Result Downloads
+
+After script completion, a timestamped ZIP file will be generated:
+```
+baseline_results_YYYYMMDD_HHMMSS.zip
+```
+
+**ZIP File Contents:**
+- `baseline/` - Baseline experiment results
+  - `*.csv` - Task data and summary statistics
+  - `figures/*.png` - Visualization charts
+- `sweeps/` - Parameter sweep results
+  - `sweep_detailed.json` - Detailed sweep data
+  - `sweep_summary.csv` - Sweep summary
+  - `run_*/` - Detailed results for each parameter combination
+- `additional/` - Other recent experiment results
+
+**Extraction Methods:**
+
+Linux/macOS:
+```bash
+unzip baseline_results_YYYYMMDD_HHMMSS.zip
+# or
+tar -xzf baseline_results_YYYYMMDD_HHMMSS.tar.gz  # if zip command unavailable
+```
+
+Windows:
+```powershell
+Expand-Archive -Path baseline_results_YYYYMMDD_HHMMSS.zip -DestinationPath extracted_results
+# or right-click and select "Extract All..."
+```
+
+### Manual Experiment Steps
+
+For manual control of experiment workflow:
+
+```bash
+# 1. Activate environment
+source venv/bin/activate  # Linux/macOS
+# venv\Scripts\Activate.ps1  # Windows
+
+# 2. Run individual experiments
+python -m battery_offloading baseline configs/baseline.yaml
+
+# 3. Run parameter sweeps
+python -m battery_offloading sweep configs/sweep_edge_latency.yaml
+python -m battery_offloading sweep configs/sweep_workload.yaml
+
+# 4. Generate visualizations
+python -m battery_offloading plot results/<timestamp>/
+```
+
+### Experiment Configuration Description
+
+- **baseline.yaml**: Baseline experiment configuration, 200 tasks, 80% initial battery
+- **sweep_edge_latency.yaml**: Edge computing latency parameter sweep (10ms-80ms)
+- **sweep_workload.yaml**: Workload ratio parameter sweep (NAV/SLAM ratio variations)
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Virtual Environment Not Found**
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Permission Error (Linux/macOS)**
+   ```bash
+   chmod +x scripts/run_baseline.sh
+   ```
+
+3. **PowerShell Execution Policy (Windows)**
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   ```
+
+4. **Dependency Installation Failed**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
 ## Dependencies
 
 - **simpy**: Discrete event simulation
