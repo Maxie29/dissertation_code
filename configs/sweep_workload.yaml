@@ -35,16 +35,38 @@ cloud_service:
 
 # Fixed network parameters (baseline performance)
 edge_network:
+  latency_ms: 20.0
+  bandwidth_mbps: 100.0
+  transmission_power_mw: 800.0
   bw_up_mbps: 100.0
   bw_down_mbps: 100.0
   rtt_ms: 20.0
   jitter_ms: 2.0
 
 cloud_network:
+  latency_ms: 100.0
+  bandwidth_mbps: 50.0
+  transmission_power_mw: 1000.0
   bw_up_mbps: 50.0
   bw_down_mbps: 50.0
   rtt_ms: 100.0
   jitter_ms: 10.0
+
+# Base task generation (will be overridden by sweep)
+task_generation:
+  arrival_rate_per_sec: 2.0       # Base task arrival rate 
+  avg_operations: 5000000.0       # Average 5M operations per task
+  avg_data_size_mb: 1.0          # Average 1MB data per task
+  nav_ratio: 0.2                 # 20% NAV tasks (always local)
+  slam_ratio: 0.1                # 10% SLAM tasks (always local)
+  edge_affinity_ratio: 0.5       # 50% of generic tasks prefer edge
+
+# Simulation control parameters
+simulation:
+  duration_sec: 600.0            # 10 minute simulation
+  soc_threshold: 30.0            # 30% SoC threshold for offloading decisions
+  random_seed: 42                # Base seed (will be incremented for each run)
+  output_directory: "results"    # Directory for output files
 
 # Workload sweep parameters
 # Testing combinations of arrival rate, task mix, and edge affinity
