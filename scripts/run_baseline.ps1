@@ -83,14 +83,14 @@ try {
     Write-Host ""
 
     if ($SkipArchive) {
-        Write-Host "📁 Skipping archive creation (--SkipArchive specified)" -ForegroundColor Yellow
+        Write-Host "📁 Skipping archive creation (-SkipArchive specified)" -ForegroundColor Yellow
         Write-Host "🎉 Baseline experiments completed!" -ForegroundColor Green
         return
     }
 
     # Find the most recent results directories
-    $latestDir = Get-ChildItem -Path "results" -Directory -Name "20*" | Sort-Object | Select-Object -Last 1
-    $latestSweep = Get-ChildItem -Path "results" -Directory -Name "sweep_20*" | Sort-Object | Select-Object -Last 1
+    $latestDir = Get-ChildItem -Path "results" -Directory -Name "20*" -ErrorAction SilentlyContinue | Sort-Object | Select-Object -Last 1
+    $latestSweep = Get-ChildItem -Path "results" -Directory -Name "sweep_20*" -ErrorAction SilentlyContinue | Sort-Object | Select-Object -Last 1
 
     if (-not $latestDir -and -not $latestSweep) {
         Write-Host "❌ Error: No results directories found" -ForegroundColor Red
@@ -125,9 +125,9 @@ try {
     # Find and include any other recent result directories (last 2 hours)
     Write-Host "   Searching for additional recent results..." -ForegroundColor Gray
     $cutoffTime = (Get-Date).AddHours(-2)
-    $recentDirs = Get-ChildItem -Path "results" -Directory -Name "20*" | Where-Object {
+    $recentDirs = Get-ChildItem -Path "results" -Directory -Name "20*" -ErrorAction SilentlyContinue | Where-Object {
         $dirPath = "results\$_"
-        (Get-Item $dirPath).LastWriteTime -gt $cutoffTime -and 
+        (Get-Item $dirPath -ErrorAction SilentlyContinue).LastWriteTime -gt $cutoffTime -and 
         $_ -ne $latestDir -and $_ -ne $latestSweep
     }
 
@@ -149,7 +149,7 @@ try {
     Write-Host "✅ Created archive: $archiveName" -ForegroundColor Green
 
     # Cleanup temporary directory
-    Remove-Item -Path $tempDir -Recurse -Force
+    Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 
     # Show archive info
     Write-Host ""
