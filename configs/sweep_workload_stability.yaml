@@ -1,0 +1,102 @@
+# Workload Stability Validation Sweep Configuration
+# This sweep tests system stability under different arrival rates
+# Designed to validate gradual changes in energy consumption and SoC
+
+# Sweep configuration metadata
+sweep:
+  name: "workload_stability_validation"
+  description: "Validate system stability under varying workload intensities"
+  variable: "arrival_rate"
+
+# Base configuration
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 3200.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 6000000.0
+  power_consumption_mw: 3200.0
+
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0
+  power_consumption_mw: 0.0
+
+edge_network:
+  latency_ms: 35.0
+  bandwidth_mbps: 25.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 15.0
+  bw_down_mbps: 50.0
+  rtt_ms: 35.0
+  jitter_ms: 5.0
+
+cloud_network:
+  latency_ms: 120.0
+  bandwidth_mbps: 30.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 20.0
+  bw_down_mbps: 60.0
+  rtt_ms: 120.0
+  jitter_ms: 15.0
+
+simulation:
+  duration_sec: 400.0      # Shorter simulation for stability testing
+  soc_threshold: 30.0
+  random_seed: 42
+  output_directory: "results"
+
+# Workload intensity sweep parameters
+sweep_parameters:
+  task_generation:
+    # Light load: Low arrival rate
+    - arrival_rate_per_sec: 1.0
+      avg_operations: 6000000.0
+      avg_data_size_mb: 2.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "light_balanced"
+      
+    # Medium load: Moderate arrival rate
+    - arrival_rate_per_sec: 2.5
+      avg_operations: 7000000.0
+      avg_data_size_mb: 2.5
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "medium_balanced"
+      
+    # Heavy load: High arrival rate
+    - arrival_rate_per_sec: 4.0
+      avg_operations: 8000000.0
+      avg_data_size_mb: 3.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "heavy_balanced"
+      
+    # Very heavy load: Very high arrival rate
+    - arrival_rate_per_sec: 6.0
+      avg_operations: 8500000.0
+      avg_data_size_mb: 3.5
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "very_heavy_balanced"
+
+# Expected behavior validation:
+# 1. Energy consumption should increase gradually with load
+# 2. Final SoC should decrease monotonically with load
+# 3. Latency should increase but not explode with load

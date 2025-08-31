@@ -1,0 +1,90 @@
+# Trade-off Validation Sweep Configuration
+# This sweep tests Local vs Edge trade-offs with edge_affinity variations
+# Designed to validate theoretical expectations:
+# - Local: Lower latency but higher energy consumption
+# - Edge: Higher latency but lower energy consumption
+
+# Sweep configuration metadata
+sweep:
+  name: "local_edge_tradeoff_validation"
+  description: "Validate Local vs Edge energy/latency trade-offs with different affinity ratios"
+  variable: "edge_affinity_ratio"
+
+# Base configuration (same as updated baseline)
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 3200.0      # Higher power for enhanced local processing
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 6000000.0    # 6M ops/sec (enhanced)
+  power_consumption_mw: 3200.0              # Higher power consumption
+
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0    # 8M ops/sec (moderate advantage)
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0   # 15M ops/sec
+  power_consumption_mw: 0.0
+
+# Network with increased latency to favor local processing
+edge_network:
+  latency_ms: 35.0
+  bandwidth_mbps: 25.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 15.0
+  bw_down_mbps: 50.0
+  rtt_ms: 35.0
+  jitter_ms: 5.0
+
+cloud_network:
+  latency_ms: 120.0
+  bandwidth_mbps: 30.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 20.0
+  bw_down_mbps: 60.0
+  rtt_ms: 120.0
+  jitter_ms: 15.0
+
+# Base task generation - consistent across all runs
+task_generation:
+  arrival_rate_per_sec: 2.5              # Slightly higher load
+  avg_operations: 8000000.0              # Larger tasks to emphasize differences
+  avg_data_size_mb: 3.0                  # Network impact
+  nav_ratio: 0.15                        # 15% NAV (always local)
+  slam_ratio: 0.1                        # 10% SLAM (always local)
+  # edge_affinity_ratio varies by sweep parameters
+
+simulation:
+  duration_sec: 450.0                    # 7.5 minute simulation for faster testing
+  soc_threshold: 30.0
+  random_seed: 42
+  output_directory: "results"
+
+# Edge affinity sweep parameters
+sweep_parameters:
+  task_generation:
+    # Local Heavy: Most GENERIC tasks prefer local execution
+    - edge_affinity_ratio: 0.2           # 20% prefer edge, 80% prefer local
+      label: "local_heavy"
+      
+    # Balanced: Even split between local and edge preference
+    - edge_affinity_ratio: 0.5           # 50% prefer edge, 50% prefer local
+      label: "balanced"
+      
+    # Edge Heavy: Most GENERIC tasks prefer edge execution  
+    - edge_affinity_ratio: 0.8           # 80% prefer edge, 20% prefer local
+      label: "edge_heavy"
+
+# Expected behavior validation:
+# 1. Local Heavy: Lower total latency, higher energy consumption
+# 2. Edge Heavy: Higher total latency, lower energy consumption
+# 3. Balanced: Intermediate values for both metrics

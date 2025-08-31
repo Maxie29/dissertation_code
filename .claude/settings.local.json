@@ -6,7 +6,8 @@
       "Bash(python -m pytest tests/test_sim_components.py::TestNetwork::test_downlink_time_calculation -v)",
       "Bash(python:*)",
       "Bash(pip install:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(set PYTHONPATH=src)"
     ],
     "deny": [],
     "ask": []
