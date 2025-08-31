@@ -273,9 +273,19 @@ class ThesisValidator:
         """Validate Local vs Edge energy/latency trade-off."""
         print(" Validating Local vs Edge trade-off...")
         
-        # Find edge_heavy and local_heavy runs (more flexible matching)
-        edge_heavy_runs = [r for r in self.runs if 'edge_heavy' in r['label'] or 'edge_0.8' in r['label']]
-        local_heavy_runs = [r for r in self.runs if 'local_heavy' in r['label'] or 'edge_0.2' in r['label']]
+        # Find edge_heavy and local_heavy runs (prefer exact matches, most recent)
+        edge_heavy_runs = [r for r in self.runs if r['label'] == 'edge_heavy']
+        local_heavy_runs = [r for r in self.runs if r['label'] == 'local_heavy']
+        
+        # If no exact matches, fall back to partial matches
+        if not edge_heavy_runs:
+            edge_heavy_runs = [r for r in self.runs if 'edge_heavy' in r['label'] or 'edge_0.8' in r['label']]
+        if not local_heavy_runs:
+            local_heavy_runs = [r for r in self.runs if 'local_heavy' in r['label'] or 'edge_0.2' in r['label']]
+        
+        # Sort by path to get most recent (assuming timestamp ordering)
+        edge_heavy_runs = sorted(edge_heavy_runs, key=lambda x: str(x['path']), reverse=True)
+        local_heavy_runs = sorted(local_heavy_runs, key=lambda x: str(x['path']), reverse=True)
         
         if not edge_heavy_runs or not local_heavy_runs:
             print("   WARNING: Could not find edge_heavy/local_heavy runs")
@@ -723,19 +733,23 @@ class ThesisValidator:
         with open(report_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(self.report_lines))
         
-        # Generate JSON summary
+        # Generate JSON summary (fix serialization issues)
         summary = {
             'timestamp': datetime.now().isoformat(),
             'total_runs': len(self.runs),
-            'validations': {
-                name: {'pass': result.get('pass', False), 'summary': self._get_result_summary(result)}
-                for name, result in self.validation_results.items()
-            }
+            'validations': {}
         }
         
+        # Convert validation results to JSON-serializable format
+        for name, result in self.validation_results.items():
+            summary['validations'][name] = {
+                'pass': bool(result.get('pass', False)),
+                'summary': str(self._get_result_summary(result))
+            }
+        
         json_path = self.out_dir / "validation_summary.json"
-        with open(json_path, 'w') as f:
-            json.dump(summary, f, indent=2)
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
         
         return report_path, json_path
 

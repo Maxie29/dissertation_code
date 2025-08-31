@@ -24,26 +24,26 @@ power:
   idle_mw: 150.0
 
 local_service:
-  processing_rate_ops_per_sec: 6000000.0    # 6M ops/sec (enhanced)
-  power_consumption_mw: 3200.0              # Higher power consumption
+  processing_rate_ops_per_sec: 8000000.0    # 8M ops/sec (significantly enhanced)
+  power_consumption_mw: 3500.0              # Higher power consumption
 
 edge_service:
-  processing_rate_ops_per_sec: 8000000.0    # 8M ops/sec (moderate advantage)
+  processing_rate_ops_per_sec: 9000000.0    # 9M ops/sec (only slight advantage)
   power_consumption_mw: 0.0
 
 cloud_service:
   processing_rate_ops_per_sec: 15000000.0   # 15M ops/sec
   power_consumption_mw: 0.0
 
-# Network with increased latency to favor local processing
+# Network with significantly increased latency to favor local processing
 edge_network:
-  latency_ms: 35.0
-  bandwidth_mbps: 25.0
+  latency_ms: 80.0             # Much higher latency (poor network conditions)
+  bandwidth_mbps: 15.0         # Lower bandwidth
   transmission_power_mw: 800.0
-  bw_up_mbps: 15.0
-  bw_down_mbps: 50.0
-  rtt_ms: 35.0
-  jitter_ms: 5.0
+  bw_up_mbps: 8.0              # Very limited upload
+  bw_down_mbps: 30.0           # Limited download
+  rtt_ms: 80.0                 # High RTT
+  jitter_ms: 15.0              # High jitter
 
 cloud_network:
   latency_ms: 120.0
