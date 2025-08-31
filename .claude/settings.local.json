@@ -5,7 +5,8 @@
       "Bash(python -m pytest tests/test_battery_energy.py -v)",
       "Bash(python -m pytest tests/test_sim_components.py::TestNetwork::test_downlink_time_calculation -v)",
       "Bash(python:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

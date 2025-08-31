@@ -15,13 +15,13 @@ $ErrorActionPreference = "Stop"
 try {
     # Check if virtual environment exists
     if (-not (Test-Path "venv")) {
-        Write-Host "❌ Error: Virtual environment 'venv' not found." -ForegroundColor Red
+        Write-Host "[ERROR] Virtual environment 'venv' not found." -ForegroundColor Red
         Write-Host "Please create it first with: python -m venv venv" -ForegroundColor Yellow
         exit 1
     }
 
     # Activate virtual environment
-    Write-Host "🔄 Activating virtual environment..." -ForegroundColor Yellow
+    Write-Host "[INFO] Activating virtual environment..." -ForegroundColor Yellow
     
     # Try different activation script locations
     $activateScript = $null
@@ -39,7 +39,7 @@ try {
     }
     
     if ($null -eq $activateScript) {
-        Write-Host "❌ Error: Could not find virtual environment activation script" -ForegroundColor Red
+        Write-Host "[ERROR] Could not find virtual environment activation script" -ForegroundColor Red
         exit 1
     }
     
@@ -50,41 +50,41 @@ try {
         cmd /c $activateScript
     } else {
         # Unix-style activation (for Git Bash, etc.)
-        Write-Host "⚠️  Using Unix-style activation" -ForegroundColor Yellow
+        Write-Host "[WARNING] Using Unix-style activation" -ForegroundColor Yellow
         & $activateScript
     }
     
-    Write-Host "✅ Virtual environment activated" -ForegroundColor Green
+    Write-Host "[SUCCESS] Virtual environment activated" -ForegroundColor Green
     Write-Host ""
 
     # Install/update dependencies
-    Write-Host "📦 Installing dependencies..." -ForegroundColor Yellow
+    Write-Host "[INFO] Installing dependencies..." -ForegroundColor Yellow
     python -m pip install -q -e .
     Write-Host ""
 
     # Get current timestamp for results identification
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-    Write-Host "🏷️  Experiment timestamp: $timestamp" -ForegroundColor Cyan
+    Write-Host "[INFO] Experiment timestamp: $timestamp" -ForegroundColor Cyan
     Write-Host ""
 
     # Run baseline experiment
-    Write-Host "🎯 Running baseline experiment..." -ForegroundColor Green
+    Write-Host "[RUNNING] Baseline experiment..." -ForegroundColor Green
     python -m battery_offloading baseline configs/baseline.yaml
     Write-Host ""
 
     # Run first parameter sweep (edge latency)
-    Write-Host "🔄 Running edge latency parameter sweep..." -ForegroundColor Green
+    Write-Host "[RUNNING] Edge latency parameter sweep..." -ForegroundColor Green
     python -m battery_offloading sweep configs/sweep_edge_latency.yaml
     Write-Host ""
 
     # Run second parameter sweep (workload)
-    Write-Host "🔄 Running workload parameter sweep..." -ForegroundColor Green
+    Write-Host "[RUNNING] Workload parameter sweep..." -ForegroundColor Green
     python -m battery_offloading sweep configs/sweep_workload.yaml
     Write-Host ""
 
     if ($SkipArchive) {
-        Write-Host "📁 Skipping archive creation (-SkipArchive specified)" -ForegroundColor Yellow
-        Write-Host "🎉 Baseline experiments completed!" -ForegroundColor Green
+        Write-Host "[INFO] Skipping archive creation (-SkipArchive specified)" -ForegroundColor Yellow
+        Write-Host "[SUCCESS] Baseline experiments completed!" -ForegroundColor Green
         return
     }
 
@@ -93,14 +93,14 @@ try {
     $latestSweep = Get-ChildItem -Path "results" -Directory -Name "sweep_20*" -ErrorAction SilentlyContinue | Sort-Object | Select-Object -Last 1
 
     if (-not $latestDir -and -not $latestSweep) {
-        Write-Host "❌ Error: No results directories found" -ForegroundColor Red
+        Write-Host "[ERROR] No results directories found" -ForegroundColor Red
         exit 1
     }
 
     # Create archive name based on timestamp
     $archiveName = "baseline_results_$timestamp.zip"
 
-    Write-Host "📦 Creating results archive: $archiveName" -ForegroundColor Yellow
+    Write-Host "[INFO] Creating results archive: $archiveName" -ForegroundColor Yellow
 
     # Create temporary directory to organize files
     $tempDir = "temp_$timestamp"
@@ -146,14 +146,14 @@ try {
     $fullArchivePath = Join-Path (Get-Location) $archiveName
     
     [System.IO.Compression.ZipFile]::CreateFromDirectory($fullTempPath, $fullArchivePath)
-    Write-Host "✅ Created archive: $archiveName" -ForegroundColor Green
+    Write-Host "[SUCCESS] Created archive: $archiveName" -ForegroundColor Green
 
     # Cleanup temporary directory
     Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 
     # Show archive info
     Write-Host ""
-    Write-Host "📋 Archive information:" -ForegroundColor Cyan
+    Write-Host "[INFO] Archive information:" -ForegroundColor Cyan
     $archiveInfo = Get-Item $archiveName
     Write-Host "   Size: $([math]::Round($archiveInfo.Length / 1MB, 2)) MB" -ForegroundColor Gray
     Write-Host "   Created: $($archiveInfo.CreationTime)" -ForegroundColor Gray
@@ -168,9 +168,9 @@ try {
     $archive.Dispose()
 
     Write-Host ""
-    Write-Host "🎉 Baseline experiment completed successfully!" -ForegroundColor Green
-    Write-Host "📁 Results archived as: $archiveName" -ForegroundColor Cyan
-    Write-Host "📊 Archive contains CSV data and PNG visualizations" -ForegroundColor Gray
+    Write-Host "[SUCCESS] Baseline experiment completed successfully!" -ForegroundColor Green
+    Write-Host "[INFO] Results archived as: $archiveName" -ForegroundColor Cyan
+    Write-Host "[INFO] Archive contains CSV data and PNG visualizations" -ForegroundColor Gray
     Write-Host ""
     Write-Host "To extract:" -ForegroundColor Yellow
     Write-Host "   Expand-Archive -Path $archiveName -DestinationPath extracted_results" -ForegroundColor White
@@ -179,7 +179,7 @@ try {
 
 } catch {
     Write-Host ""
-    Write-Host "❌ Error occurred: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[ERROR] Error occurred: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "Stack trace:" -ForegroundColor Red
     Write-Host $_.ScriptStackTrace -ForegroundColor DarkRed
     exit 1
@@ -189,5 +189,5 @@ try {
         Get-ChildItem -Path "temp_*" -Directory | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
     }
     
-    Write-Host "✅ Cleanup completed" -ForegroundColor Green
+    Write-Host "[INFO] Cleanup completed" -ForegroundColor Green
 }
