@@ -37,17 +37,31 @@ echo
 
 # Run baseline experiment
 echo "🎯 Running baseline experiment..."
-python -m battery_offloading baseline configs/baseline.yaml
+python -m battery_offloading run --config configs/baseline.yaml
 echo
 
-# Run first parameter sweep (edge latency)
+# Run edge latency parameter sweep
 echo "🔄 Running edge latency parameter sweep..."
-python -m battery_offloading sweep configs/sweep_edge_latency.yaml
+if [ -f "configs/sweep_edge_latency.yaml" ]; then
+    python -m battery_offloading run --config configs/sweep_edge_latency.yaml
+else
+    echo "   ⚠️  Edge latency sweep config not found, running with different parameters..."
+    python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 1
+    python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 2
+    python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 3
+fi
 echo
 
-# Run second parameter sweep (workload)
-echo "🔄 Running workload parameter sweep..."  
-python -m battery_offloading sweep configs/sweep_workload.yaml
+# Run workload parameter sweep
+echo "🔄 Running workload parameter sweep..."
+if [ -f "configs/sweep_workload.yaml" ]; then
+    python -m battery_offloading run --config configs/sweep_workload.yaml
+else
+    echo "   ⚠️  Workload sweep config not found, running with different battery levels..."
+    python -m battery_offloading run --config configs/baseline.yaml --initial-soc 60.0 --num-tasks 100
+    python -m battery_offloading run --config configs/baseline.yaml --initial-soc 80.0 --num-tasks 100
+    python -m battery_offloading run --config configs/baseline.yaml --initial-soc 90.0 --num-tasks 100
+fi
 echo
 
 # Find the most recent results directory

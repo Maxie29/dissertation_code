@@ -69,17 +69,31 @@ try {
 
     # Run baseline experiment
     Write-Host "[RUNNING] Baseline experiment..." -ForegroundColor Green
-    python -m battery_offloading baseline configs/baseline.yaml
+    python -m battery_offloading run --config configs/baseline.yaml
     Write-Host ""
 
-    # Run first parameter sweep (edge latency)
+    # Run edge latency parameter sweep
     Write-Host "[RUNNING] Edge latency parameter sweep..." -ForegroundColor Green
-    python -m battery_offloading sweep configs/sweep_edge_latency.yaml
+    if (Test-Path "configs/sweep_edge_latency.yaml") {
+        python -m battery_offloading run --config configs/sweep_edge_latency.yaml
+    } else {
+        Write-Host "[WARNING] Edge latency sweep config not found, running with different parameters..." -ForegroundColor Yellow
+        python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 1
+        python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 2
+        python -m battery_offloading run --config configs/baseline.yaml --num-tasks 100 --seed 3
+    }
     Write-Host ""
 
-    # Run second parameter sweep (workload)
+    # Run workload parameter sweep
     Write-Host "[RUNNING] Workload parameter sweep..." -ForegroundColor Green
-    python -m battery_offloading sweep configs/sweep_workload.yaml
+    if (Test-Path "configs/sweep_workload.yaml") {
+        python -m battery_offloading run --config configs/sweep_workload.yaml
+    } else {
+        Write-Host "[WARNING] Workload sweep config not found, running with different battery levels..." -ForegroundColor Yellow
+        python -m battery_offloading run --config configs/baseline.yaml --initial-soc 60.0 --num-tasks 100
+        python -m battery_offloading run --config configs/baseline.yaml --initial-soc 80.0 --num-tasks 100
+        python -m battery_offloading run --config configs/baseline.yaml --initial-soc 90.0 --num-tasks 100
+    }
     Write-Host ""
 
     if ($SkipArchive) {
