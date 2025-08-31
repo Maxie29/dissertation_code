@@ -232,8 +232,9 @@ def _run_sweep(
         # Set parameters with CLI overrides or defaults
         task_count = num_tasks if num_tasks is not None else 200
         seed_base = seed if seed is not None else 42
-        soc = initial_soc if initial_soc is not None else 80.0
-        capacity = battery_capacity if battery_capacity is not None else 100.0
+        # For sweeps, only use CLI values if explicitly provided, otherwise let config values take precedence
+        soc = initial_soc if initial_soc is not None else None
+        capacity = battery_capacity if battery_capacity is not None else None
         
         # Create and run sweep
         if not quiet:

@@ -1,0 +1,118 @@
+# Low Battery Threshold Testing Configuration
+# This configuration specifically tests the 30% SoC threshold rule:
+# - SoC ≤ 30% → CLOUD execution for GENERIC tasks
+# - SoC > 30% → LOCAL/EDGE execution based on edge_affinity  
+# - NAV/SLAM tasks ALWAYS execute locally regardless of SoC
+
+# Sweep configuration metadata
+sweep:
+  name: "low_battery_threshold_validation"
+  description: "Validate 30% SoC threshold policy rule with comprehensive edge cases"
+  variable: "initial_battery_levels"
+
+# Base configuration
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 35.0              # Will be overridden by sweep
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 2500.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 1000000.0
+  power_consumption_mw: 2500.0
+
+edge_service:
+  processing_rate_ops_per_sec: 5000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 10000000.0
+  power_consumption_mw: 0.0
+
+# Network parameters
+edge_network:
+  latency_ms: 20.0
+  bandwidth_mbps: 100.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 100.0
+  bw_down_mbps: 100.0
+  rtt_ms: 20.0
+  jitter_ms: 2.0
+
+cloud_network:
+  latency_ms: 100.0
+  bandwidth_mbps: 50.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 50.0
+  bw_down_mbps: 50.0
+  rtt_ms: 100.0
+  jitter_ms: 10.0
+
+# Base task generation - mixed workload to test all scenarios
+task_generation:
+  arrival_rate_per_sec: 3.0       # Higher rate to consume battery faster
+  avg_operations: 8000000.0       # Higher computation to drain battery
+  avg_data_size_mb: 2.0          # Larger data for more communication energy
+  nav_ratio: 0.3                 # 30% NAV tasks (should stay local even at low SoC)
+  slam_ratio: 0.2                # 20% SLAM tasks (should stay local even at low SoC)  
+  edge_affinity_ratio: 0.5       # 50% of GENERIC tasks prefer edge
+
+# Simulation control parameters
+simulation:
+  duration_sec: 600.0            # 10 minute simulation
+  soc_threshold: 30.0            # The critical 30% threshold we're testing
+  random_seed: 42                # Base seed (will be incremented for each run)
+  output_directory: "results"    # Directory for output files
+
+# Battery level sweep parameters - comprehensive testing around 30% threshold
+sweep_parameters:
+  battery:
+    # Test cases designed to validate 30% threshold rule
+    - initial_soc: 45.0            # Well above threshold - normal behavior expected
+      capacity_wh: 18.5            # Keep capacity consistent
+      label: "high_45pct"
+      
+    - initial_soc: 35.0            # Above threshold - should use LOCAL/EDGE
+      capacity_wh: 18.5
+      label: "above_35pct"
+      
+    - initial_soc: 32.0            # Just above threshold - edge case
+      capacity_wh: 18.5
+      label: "just_above_32pct"
+      
+    - initial_soc: 30.0            # Exactly at threshold - boundary test
+      capacity_wh: 18.5
+      label: "exactly_30pct"
+      
+    - initial_soc: 28.0            # Just below threshold - should force CLOUD for GENERIC
+      capacity_wh: 18.5
+      label: "just_below_28pct"
+      
+    - initial_soc: 25.0            # Below threshold - CLOUD enforcement test
+      capacity_wh: 18.5
+      label: "low_25pct"
+      
+    - initial_soc: 20.0            # Well below threshold - strict CLOUD enforcement
+      capacity_wh: 18.5
+      label: "very_low_20pct"
+      
+    - initial_soc: 15.0            # Critical low - ultimate test
+      capacity_wh: 18.5
+      label: "critical_15pct"
+      
+    # Additional test: Start high and drain to cross threshold during simulation
+    - initial_soc: 33.0            # Start just above, likely to cross 30% during run
+      capacity_wh: 18.5
+      label: "crossing_threshold_33pct"
+
+# Expected behavior validation:
+# 1. initial_soc > 30%: GENERIC tasks use LOCAL/EDGE based on edge_affinity
+# 2. initial_soc ≤ 30%: GENERIC tasks MUST use CLOUD  
+# 3. NAV/SLAM tasks ALWAYS use LOCAL regardless of SoC
+# 4. Crossing threshold: Tasks dispatched after crossing should follow new rule

@@ -170,12 +170,16 @@ class SweepRunner:
                 # Create run-specific results directory
                 run_dir = sweep_dir / f"run_{run_count:02d}_{label}"
                 
+                # Use config values if available, otherwise fall back to CLI parameters or defaults
+                config_soc = getattr(config.battery, 'initial_soc', initial_soc if initial_soc is not None else 80.0)
+                config_capacity = getattr(config.battery, 'capacity_wh', battery_capacity_wh if battery_capacity_wh is not None else 100.0)
+                
                 # Create and run simulation
                 runner = Runner(
                     config=config,
                     task_generator=task_gen,
-                    initial_soc=initial_soc,
-                    battery_capacity_wh=battery_capacity_wh,
+                    initial_soc=config_soc,
+                    battery_capacity_wh=config_capacity,
                     results_dir=str(run_dir)
                 )
                 
