@@ -11,7 +11,7 @@ Acceptance Criteria:
 """
 
 import pytest
-from src.battery_offloading.battery import Battery, EnergyConsumptionRecord
+from battery_offloading.battery import Battery, EnergyConsumptionRecord
 
 
 class TestBatteryInitializationAndValidation:

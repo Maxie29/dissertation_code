@@ -6,15 +6,15 @@ according to the acceptance criteria.
 """
 
 import pytest
-from src.battery_offloading.battery import Battery, EnergyConsumptionRecord
-from src.battery_offloading.energy import (
+from battery_offloading.battery import Battery, EnergyConsumptionRecord
+from battery_offloading.energy import (
     PowerParameters, ComputationTimes,
     estimate_local_compute_time, estimate_remote_compute_time,
     estimate_comm_time, estimate_robot_energy,
     get_execution_energy_breakdown
 )
-from src.battery_offloading.task import Task, TaskGenerator
-from src.battery_offloading.enums import TaskType, Site
+from battery_offloading.task import Task, TaskGenerator
+from battery_offloading.enums import TaskType, Site
 
 
 class TestBattery:

@@ -11,14 +11,14 @@ Acceptance Criteria:
 
 import pytest
 import math
-from src.battery_offloading.energy import (
+from battery_offloading.energy import (
     PowerParameters, ComputationTimes,
     estimate_local_compute_time, estimate_remote_compute_time,
     estimate_comm_time, estimate_robot_energy,
     get_execution_energy_breakdown
 )
-from src.battery_offloading.task import Task
-from src.battery_offloading.enums import TaskType, Site
+from battery_offloading.task import Task
+from battery_offloading.enums import TaskType, Site
 
 
 class TestLocalExecutionNoCommunication:

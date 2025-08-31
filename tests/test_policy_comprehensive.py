@@ -10,7 +10,7 @@ Acceptance Criteria:
 """
 
 import pytest
-from src.battery_offloading.policy import (
+from battery_offloading.policy import (
     BATT_THRESH,
     is_special,
     decide_site,
@@ -18,8 +18,8 @@ from src.battery_offloading.policy import (
     get_dispatch_statistics,
     validate_dispatch_rules
 )
-from src.battery_offloading.task import Task
-from src.battery_offloading.enums import TaskType, Site
+from battery_offloading.task import Task
+from battery_offloading.enums import TaskType, Site
 
 
 class TestSoCThresholdBoundary:
