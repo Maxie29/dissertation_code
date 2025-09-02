@@ -5,16 +5,20 @@ echo "Battery Offloading Baseline Experiment Runner (Linux/macOS)"
 echo "=========================================================="
 echo
 
-# Check if virtual environment exists
-if [ ! -d "venv" ]; then
-    echo "❌ Error: Virtual environment 'venv' not found."
-    echo "Please create it first with: python -m venv venv"
+# Check if virtual environment exists (.venv or venv)
+if [ -d ".venv" ]; then
+    VENV_PATH=".venv"
+elif [ -d "venv" ]; then
+    VENV_PATH="venv"
+else
+    echo "❌ Error: Virtual environment not found."
+    echo "Please create it first with: python -m venv .venv"
     exit 1
 fi
 
 # Activate virtual environment
 echo "🔄 Activating virtual environment..."
-source venv/bin/activate
+source $VENV_PATH/bin/activate
 
 # Verify we're in the right environment
 if [ -z "$VIRTUAL_ENV" ]; then
