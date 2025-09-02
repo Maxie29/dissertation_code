@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-08-31T18:21:02.766995",
+  "total_runs": 110,
+  "validations": {
+    "threshold_30pct": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "nav_slam_local": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "local_edge_tradeoff": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "workload_stability": {
+      "pass": true,
+      "summary": "0 issues"
+    },
+    "task_type_impact": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "soc_curve": {
+      "pass": true,
+      "summary": "0 violations"
+    },
+    "deadline_miss": {
+      "pass": true,
+      "summary": "OK"
+    }
+  }
+}

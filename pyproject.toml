@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vacsim"
+version = "0.1.0"
+description = "Battery-Level-Aware Task Offloading Simulator for Intelligent Vacuum in Edge-Cloud Collaboration"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name="Your Name"}]
+dependencies = [
+  "simpy",
+  "numpy",
+  "pandas",
+  "pyyaml",
+  "pydantic>=2",
+  "typer[all]",
+  "matplotlib",
+  "rich",
+  "pytest",
+  "pytest-cov"
+]
+
+[project.scripts]
+vacsim = "vacsim.cli.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}

@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-31T17:24:22.156825",
+  "total_runs": 14,
+  "validations": {
+    "threshold_30pct": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "nav_slam_local": {
+      "pass": true,
+      "summary": "OK"
+    },
+    "local_edge_tradeoff": {
+      "pass": 

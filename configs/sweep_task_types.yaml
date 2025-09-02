@@ -1,0 +1,102 @@
+# Task Type Impact Validation Sweep Configuration  
+# This sweep tests the impact of different task type distributions
+# Designed to validate task-specific execution patterns
+
+# Sweep configuration metadata
+sweep:
+  name: "task_type_impact_validation"
+  description: "Validate impact of different task type distributions on performance"
+  variable: "task_type_ratios"
+
+# Base configuration
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 3200.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 6000000.0
+  power_consumption_mw: 3200.0
+
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0
+  power_consumption_mw: 0.0
+
+edge_network:
+  latency_ms: 35.0
+  bandwidth_mbps: 25.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 15.0
+  bw_down_mbps: 50.0
+  rtt_ms: 35.0
+  jitter_ms: 5.0
+
+cloud_network:
+  latency_ms: 120.0
+  bandwidth_mbps: 30.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 20.0
+  bw_down_mbps: 60.0
+  rtt_ms: 120.0
+  jitter_ms: 15.0
+
+simulation:
+  duration_sec: 400.0
+  soc_threshold: 30.0
+  random_seed: 42
+  output_directory: "results"
+
+# Task type distribution sweep parameters
+sweep_parameters:
+  task_generation:
+    # SLAM Intensive: High SLAM ratio (always local)
+    - arrival_rate_per_sec: 2.5
+      avg_operations: 8000000.0
+      avg_data_size_mb: 2.5
+      nav_ratio: 0.1           # 10% NAV
+      slam_ratio: 0.6          # 60% SLAM (high)
+      edge_affinity_ratio: 0.5 # 50% of GENERIC prefer edge
+      label: "slam_intensive"
+      
+    # NAV Intensive: High NAV ratio (always local)
+    - arrival_rate_per_sec: 2.5
+      avg_operations: 8000000.0
+      avg_data_size_mb: 2.5
+      nav_ratio: 0.6           # 60% NAV (high)
+      slam_ratio: 0.1          # 10% SLAM
+      edge_affinity_ratio: 0.5 # 50% of GENERIC prefer edge
+      label: "nav_intensive"
+      
+    # Generic Only: Only GENERIC tasks (can go anywhere)
+    - arrival_rate_per_sec: 2.5
+      avg_operations: 8000000.0
+      avg_data_size_mb: 2.5
+      nav_ratio: 0.0           # 0% NAV
+      slam_ratio: 0.0          # 0% SLAM
+      edge_affinity_ratio: 0.5 # 50% prefer edge
+      label: "generic_only"
+      
+    # Balanced: Normal distribution
+    - arrival_rate_per_sec: 2.5
+      avg_operations: 8000000.0
+      avg_data_size_mb: 2.5
+      nav_ratio: 0.2           # 20% NAV
+      slam_ratio: 0.1          # 10% SLAM  
+      edge_affinity_ratio: 0.5 # 50% of GENERIC prefer edge
+      label: "balanced"
+
+# Expected behavior validation:
+# 1. SLAM/NAV intensive: Higher local_ratio, higher energy, higher latency
+# 2. Generic only: Lower local_ratio, lower energy, lower latency  
+# 3. Balanced: Intermediate values

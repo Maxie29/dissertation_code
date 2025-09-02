@@ -1,0 +1,68 @@
+# Baseline Configuration for Battery Offloading Simulation
+# This configuration represents a typical mobile device scenario with
+# realistic battery, processing, and network parameters for research baseline
+
+# Battery specifications for a typical smartphone
+battery:
+  capacity_mah: 5000           # 5000 mAh battery capacity
+  capacity_wh: 18.5            # 18.5 Wh (3.7V nominal * 5Ah)
+  initial_soc: 80.0            # Start at 80% charge (realistic scenario)
+  discharge_rate_ma: 200       # Base discharge rate in mA
+
+# Power consumption parameters for robot activities
+power:
+  active_local_mw: 3200.0      # 3.2W during local computation (higher for more powerful local processing)
+  tx_mw: 800.0                 # 800mW during transmission
+  rx_mw: 400.0                 # 400mW during reception  
+  idle_mw: 150.0               # 150mW baseline idle power
+
+# Local device processing capabilities (enhanced for lower latency)
+local_service:
+  processing_rate_ops_per_sec: 6000000.0    # 6M operations per second (significantly improved)
+  power_consumption_mw: 3200.0              # 3.2W power consumption (higher due to faster processing)
+
+# Edge server processing capabilities (reduced advantage to favor local)
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0    # 8M operations per second (only ~1.3x faster than local)
+  power_consumption_mw: 0.0                 # No local power consumption for edge
+
+# Cloud server processing capabilities (powerful cloud resources)
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0   # 15M operations per second (10x faster than local)
+  power_consumption_mw: 0.0                 # No local power consumption for cloud
+
+# Network parameters for edge communication (realistic 4G/5G with some latency)
+edge_network:
+  latency_ms: 35.0             # 35ms latency to edge (network delays)
+  bandwidth_mbps: 25.0         # 25 Mbps bandwidth (moderate network)
+  transmission_power_mw: 800.0 # 800mW transmission power
+  bw_up_mbps: 15.0             # 15 Mbps upload (typical mobile)
+  bw_down_mbps: 50.0           # 50 Mbps download 
+  rtt_ms: 35.0                 # Round-trip time
+  jitter_ms: 5.0               # Network jitter
+
+# Network parameters for cloud communication (Internet)
+cloud_network:
+  latency_ms: 120.0            # 120ms latency to cloud
+  bandwidth_mbps: 30.0         # 30 Mbps bandwidth
+  transmission_power_mw: 1000.0 # 1W transmission power (higher for cloud)
+  bw_up_mbps: 20.0             # 20 Mbps upload
+  bw_down_mbps: 60.0           # 60 Mbps download
+  rtt_ms: 120.0                # Round-trip time
+  jitter_ms: 15.0              # Network jitter
+
+# Task generation parameters (balanced workload)
+task_generation:
+  arrival_rate_per_sec: 2.0    # 2 tasks per second (moderate load)
+  avg_operations: 8000000.0    # Average 8M operations per task (larger tasks to emphasize differences)
+  avg_data_size_mb: 3.0        # Average 3MB data per task (larger data for network impact)
+  nav_ratio: 0.2               # 20% NAV tasks (always local)
+  slam_ratio: 0.1              # 10% SLAM tasks (always local)
+  edge_affinity_ratio: 0.5     # 50% of generic tasks prefer edge (balanced)
+
+# Simulation control parameters
+simulation:
+  duration_sec: 600.0          # 10 minute simulation
+  soc_threshold: 30.0          # 30% SoC threshold for offloading decisions
+  random_seed: 42              # Fixed seed for reproducible results
+  output_directory: "results"  # Directory for output files
