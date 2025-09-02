@@ -1,0 +1,4 @@
+run_id,parameter_label,seed,status,error,arrival_rate,nav_ratio,slam_ratio,edge_affinity_ratio,edge_rtt_ms,cloud_rtt_ms,local_ops_per_sec,edge_ops_per_sec,cloud_ops_per_sec,total_tasks,latency_mean_ms,latency_p95_ms,total_energy_wh,final_soc,local_ratio,edge_ratio,cloud_ratio,deadline_miss_rate,rules_valid
+1,local_heavy,43,SUCCESS,,2.5,0.15,0.1,0.2,80.0,120.0,8000000.0,9000000.0,15000000.0,80,1302.0360149268743,3370.794259632811,0.07006402083300062,79.62127556306487,0.8625,0.1375,0.0,0.6125,True
+2,balanced,44,SUCCESS,,2.5,0.15,0.1,0.5,80.0,120.0,8000000.0,9000000.0,15000000.0,80,1633.655187287302,4105.075330220344,0.05799017622693907,79.68653958796253,0.6875,0.3125,0.0,0.575,True
+3,edge_heavy,45,SUCCESS,,2.5,0.15,0.1,0.8,80.0,120.0,8000000.0,9000000.0,15000000.0,80,2271.8406109595735,5861.035356543033,0.05148109847722357,79.72172379201504,0.3875,0.6125,0.0,0.725,True
