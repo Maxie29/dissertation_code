@@ -1,0 +1,62 @@
+# Force Local Execution for Energy/Latency Comparison
+
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+power:
+  active_local_mw: 3200.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+local_service:
+  processing_rate_ops_per_sec: 6000000.0
+  power_consumption_mw: 3200.0
+
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0
+  power_consumption_mw: 0.0
+
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0
+  power_consumption_mw: 0.0
+
+edge_network:
+  latency_ms: 35.0
+  bandwidth_mbps: 25.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 15.0
+  bw_down_mbps: 50.0
+  rtt_ms: 35.0
+  jitter_ms: 5.0
+
+cloud_network:
+  latency_ms: 120.0
+  bandwidth_mbps: 30.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 20.0
+  bw_down_mbps: 60.0
+  rtt_ms: 120.0
+  jitter_ms: 15.0
+
+# Task generation with minimal NAV/SLAM to allow policy control
+task_generation:
+  arrival_rate_per_sec: 2.0
+  avg_operations: 5000000.0
+  avg_data_size_mb: 2.0
+  nav_ratio: 0.05         # Minimal to allow policy choice
+  slam_ratio: 0.05        # Minimal to allow policy choice
+  edge_affinity_ratio: 0.1
+
+# Simulation control
+simulation:
+  duration_sec: 300.0
+  soc_threshold: 20.0
+  random_seed: 42
+  output_directory: "results_force_local"
+  
+# Force local execution via policy
+policy: "always_local"

@@ -1,0 +1,114 @@
+# Three-Tier Architecture Comparison (Local vs Edge vs Cloud)
+# Configuration designed to force execution on specific tiers
+# for direct energy and latency comparison
+
+# Battery specifications
+battery:
+  capacity_mah: 5000
+  capacity_wh: 18.5
+  initial_soc: 80.0
+  discharge_rate_ma: 200
+
+# Power consumption parameters
+power:
+  active_local_mw: 3200.0
+  tx_mw: 800.0
+  rx_mw: 400.0
+  idle_mw: 150.0
+
+# Local processing (mobile device)
+local_service:
+  processing_rate_ops_per_sec: 6000000.0    # 6M ops/sec
+  power_consumption_mw: 3200.0
+
+# Edge processing (nearby server)
+edge_service:
+  processing_rate_ops_per_sec: 8000000.0    # 8M ops/sec (1.3x faster)
+  power_consumption_mw: 0.0
+
+# Cloud processing (powerful remote server)
+cloud_service:
+  processing_rate_ops_per_sec: 15000000.0   # 15M ops/sec (2.5x faster than local)
+  power_consumption_mw: 0.0
+
+# Edge network (5G/4G)
+edge_network:
+  latency_ms: 35.0
+  bandwidth_mbps: 25.0
+  transmission_power_mw: 800.0
+  bw_up_mbps: 15.0
+  bw_down_mbps: 50.0
+  rtt_ms: 35.0
+  jitter_ms: 5.0
+
+# Cloud network (Internet)
+cloud_network:
+  latency_ms: 120.0
+  bandwidth_mbps: 30.0
+  transmission_power_mw: 1000.0
+  bw_up_mbps: 20.0
+  bw_down_mbps: 60.0
+  rtt_ms: 120.0
+  jitter_ms: 15.0
+
+# Simulation control
+simulation:
+  duration_sec: 300.0          # 5 minute simulation for quicker results
+  soc_threshold: 20.0          # Lower threshold to allow more cloud usage
+  random_seed: 42
+  output_directory: "results_three_tier"
+
+# Sweep parameters to force execution on different tiers
+sweep_parameters:
+  task_generation:
+    # Force local-only execution (baseline policies)
+    - arrival_rate_per_sec: 2.0
+      avg_operations: 5000000.0
+      avg_data_size_mb: 1.0       # Small data to minimize network impact
+      nav_ratio: 0.5              # High nav ratio forces local
+      slam_ratio: 0.3             # High slam ratio forces local
+      edge_affinity_ratio: 0.1    # Very low edge affinity
+      label: "force_local"
+      
+    # Force edge execution (medium data, edge-favorable conditions)
+    - arrival_rate_per_sec: 2.0
+      avg_operations: 8000000.0   # Heavier computation favors remote
+      avg_data_size_mb: 2.0       # Moderate data size
+      nav_ratio: 0.1              # Minimal local-only tasks
+      slam_ratio: 0.05            # Minimal local-only tasks
+      edge_affinity_ratio: 0.9    # High edge preference
+      label: "force_edge"
+      
+    # Force cloud execution (heavy computation, acceptable network cost)
+    - arrival_rate_per_sec: 1.5
+      avg_operations: 12000000.0  # Very heavy computation
+      avg_data_size_mb: 3.0       # Larger data but still acceptable for cloud benefit
+      nav_ratio: 0.05             # Minimal local-only tasks
+      slam_ratio: 0.05            # Minimal local-only tasks
+      edge_affinity_ratio: 0.3    # Low edge affinity to push towards cloud
+      label: "force_cloud"
+      
+    # Balanced scenario for comparison
+    - arrival_rate_per_sec: 2.0
+      avg_operations: 6000000.0
+      avg_data_size_mb: 2.0
+      nav_ratio: 0.2
+      slam_ratio: 0.1
+      edge_affinity_ratio: 0.5
+      label: "balanced_mixed"
+
+# Additional policy tests to ensure cloud usage
+policy_overrides:
+  # Test with policies that explicitly use cloud
+  - policy_name: "always_cloud"
+    description: "Force all generic tasks to cloud"
+  - policy_name: "greedy_energy" 
+    description: "Energy-optimized decisions"
+  - policy_name: "battery_aware"
+    description: "Battery-aware with low SoC threshold"
+    
+# Expected outcomes:
+# - force_local: High energy, low latency for computation-heavy tasks
+# - force_edge: Medium energy, medium latency, balanced performance  
+# - force_cloud: Low local energy, high latency, best computation performance
+# - balanced_mixed: Representative real-world scenario
