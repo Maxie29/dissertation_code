@@ -13,10 +13,19 @@ Write-Host ""
 $ErrorActionPreference = "Stop"
 
 try {
-    # Check if virtual environment exists
-    if (-not (Test-Path "venv")) {
-        Write-Host "[ERROR] Virtual environment 'venv' not found." -ForegroundColor Red
-        Write-Host "Please create it first with: python -m venv venv" -ForegroundColor Yellow
+    # Check if virtual environment exists (.venv or venv)
+    $venvExists = $false
+    if (Test-Path ".venv") {
+        $venvExists = $true
+        $venvPath = ".venv"
+    } elseif (Test-Path "venv") {
+        $venvExists = $true
+        $venvPath = "venv"
+    }
+    
+    if (-not $venvExists) {
+        Write-Host "[ERROR] Virtual environment not found." -ForegroundColor Red
+        Write-Host "Please create it first with: python -m venv .venv" -ForegroundColor Yellow
         exit 1
     }
 
@@ -26,9 +35,9 @@ try {
     # Try different activation script locations
     $activateScript = $null
     $possiblePaths = @(
-        "venv\Scripts\Activate.ps1",
-        "venv\Scripts\activate.bat",
-        "venv\bin\activate"
+        "$venvPath\Scripts\Activate.ps1",
+        "$venvPath\Scripts\activate.bat",
+        "$venvPath\bin\activate"
     )
     
     foreach ($path in $possiblePaths) {
