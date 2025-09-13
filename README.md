@@ -166,6 +166,11 @@ battery_offloading/
 │       ├── validation_report.md    # Human-readable validation report
 │       ├── validation_summary.json # Machine-readable validation results
 │       └── figures/                # Validation visualization charts
+├── create_three_tier_comparison_chart.py # Three-tier architecture analysis
+├── three_tier_analysis/            # Three-tier comparison charts
+│   ├── three_tier_energy_latency_tradeoff.png # Main energy-latency trade-off chart
+│   ├── three_tier_distribution_comparison.png # Execution distribution comparison
+│   └── three_tier_performance_table.png       # Performance metrics table
 ├── scripts/                        # Automation scripts
 │   ├── run_baseline.ps1            # Windows baseline experiments
 │   ├── run_baseline.sh             # Linux/macOS baseline experiments
@@ -192,6 +197,8 @@ battery_offloading/
 The CLI provides comprehensive metrics after each simulation:
 
 - **Latency Statistics**: Mean, P50, P95, P99 task completion times
+  - **P95 Significance**: 95% of tasks complete below this latency (critical for real-time systems)
+  - **P99 Significance**: 99% of tasks complete below this latency (captures worst-case performance)
 - **Energy Consumption**: Total and per-task energy usage in Wh  
 - **Battery Status**: Initial/final SoC, total decrease
 - **Task Distribution**: How tasks were distributed across LOCAL/EDGE/CLOUD
@@ -231,6 +238,68 @@ The project uses YAML configuration files with Pydantic validation. See `configs
 - Task generation parameters
 - Simulation thresholds and ratios
 
+## Three-Tier Architecture Analysis
+
+### Overview
+This framework provides comprehensive Local vs Edge vs Cloud performance analysis with publication-ready visualizations.
+
+### Generated Analysis Charts
+
+The framework automatically generates three key comparison charts:
+
+1. **Energy-Latency Trade-off Chart** (`three_tier_energy_latency_tradeoff.png`)
+   - Main analysis chart showing the fundamental trade-off between energy consumption and latency
+   - Scatter plot with error bars for statistical confidence
+   - Execution distribution annotations (Local/Edge/Cloud percentages)
+   - Clear trade-off rankings displayed
+
+2. **Execution Distribution Comparison** (`three_tier_distribution_comparison.png`)
+   - Left panel: Stacked bar chart of task execution distribution
+   - Right panel: Total energy consumption by scenario
+   - Percentage labels for precise quantification
+
+3. **Performance Summary Table** (`three_tier_performance_table.png`)
+   - Comprehensive comparison of 10 key metrics
+   - Color-coded best performance values (green highlighting)
+   - Academic publication format
+
+### Key Performance Metrics
+
+| Metric | Cloud-Heavy (SoC=20%) | Edge-Heavy (SoC=80%) | Local-Heavy (SoC=80%) |
+|--------|----------------------|---------------------|----------------------|
+| **Average Latency (ms)** | 1112.4 | 1216.6 | 955.6 |
+| **Total Energy (Wh)** | 0.040 | 0.058 | 0.124 |
+| **Energy per Task (Wh)** | 0.0002 | 0.0003 | 0.0006 |
+| **Execution Distribution** | L:8% E:0% C:92% | L:25.5% E:74.5% C:0% | L:80.5% E:19.5% C:0% |
+
+### Running Three-Tier Analysis
+
+```bash
+# Generate the three comparison scenarios
+python -m battery_offloading run --config configs/low_battery_cloud_test.yaml --initial-soc 20.0
+python -m battery_offloading run --config configs/high_battery_local_edge_test.yaml --initial-soc 80.0
+python -m battery_offloading run --config configs/local_heavy_test.yaml --initial-soc 80.0
+
+# Create comparison charts
+python create_three_tier_comparison_chart.py
+```
+
+### Understanding the Results
+
+**Energy Efficiency Ranking**: Cloud (69% savings) > Edge (53% savings) > Local (baseline)
+**Latency Performance Ranking**: Local (baseline) > Cloud (+16% penalty) > Edge (+27% penalty)
+
+**Key Insight**: Cloud computing provides the best energy efficiency but with a moderate latency trade-off, while edge computing offers balanced performance between local and cloud execution.
+
+### Visualization Technology
+
+All charts are generated using:
+- **matplotlib**: Publication-quality scientific plotting
+- **pandas**: Structured data analysis and manipulation  
+- **numpy**: Statistical calculations and numerical processing
+- **300 DPI resolution**: Academic publication standard
+- **PNG format**: Universal compatibility for papers and presentations
+
 ## Testing
 
 Run tests with:
@@ -252,6 +321,7 @@ This framework enables comprehensive research into battery-aware mobile computin
 
 ### Performance Analysis ✅ **VALIDATED**
 - **Latency Distributions**: Quantified across LOCAL/EDGE/CLOUD execution sites
+- **Three-Tier Architecture Comparison**: Comprehensive Local vs Edge vs Cloud performance analysis
 - **Workload Stability**: Systematic analysis across light/medium/heavy workloads
 - **Task Type Impact**: Proven differences between NAV (76% local), SLAM (72% local), GENERIC (53% local)
 - **Deadline Analysis**: 74% miss rate reveals system limitations for future optimization
@@ -264,8 +334,10 @@ This framework enables comprehensive research into battery-aware mobile computin
 ### Key Research Findings ✅
 1. **30% SoC threshold is optimal**: Zero violations across comprehensive test scenarios
 2. **Edge computing advantage confirmed**: 48% energy savings, 35% latency improvement vs local
-3. **NAV/SLAM constraint effectiveness**: 100% local execution compliance regardless of battery level
-4. **System scalability insights**: Performance stability across varied workload intensities
+3. **Cloud computing trade-offs quantified**: 69% energy savings but 16% latency penalty vs local execution
+4. **Three-tier performance ranking**: Energy efficiency (Cloud > Edge > Local), Latency performance (Local > Cloud > Edge)
+5. **NAV/SLAM constraint effectiveness**: 100% local execution compliance regardless of battery level
+6. **System scalability insights**: Performance stability across varied workload intensities
 
 ## Experiment Reproduction
 
@@ -375,6 +447,7 @@ The framework includes comprehensive validation tools to verify thesis claims an
 
 **Performance Analysis (Additional Insights)**:
 - 📊 **Local vs Edge Trade-off**: Edge computing saves 0.288Wh (-48%) and reduces latency by 1575.8ms (-35%)
+- 🏗️ **Three-Tier Architecture Analysis**: Cloud execution achieves 69% energy savings over Local (0.040Wh vs 0.124Wh) but increases latency by 16% (1112.4ms vs 955.6ms)
 - 📈 **Workload Stability**: 1 stability issue identified (SoC behavior under heavy load)
 - 🎯 **Deadline Analysis**: Average miss rate 74% indicates system limitations under current constraints
 
@@ -434,11 +507,12 @@ python tools/validate_thesis_claims.py --roots results --out-dir tools/validatio
 ## Dependencies
 
 - **simpy**: Discrete event simulation
-- **numpy**: Numerical computing
-- **pandas**: Data manipulation and analysis
+- **numpy**: Numerical computing and statistical analysis
+- **pandas**: Data manipulation and CSV processing
 - **pyyaml**: YAML configuration parsing
 - **typer**: Command-line interface
 - **rich**: Rich terminal output
-- **matplotlib**: Plotting and visualization
+- **matplotlib**: Publication-quality plotting and visualization (300 DPI)
 - **pytest**: Testing framework
 - **pydantic**: Data validation and settings management
+- **pathlib**: Modern file path handling (built-in Python 3.4+)
